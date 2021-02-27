@@ -8,8 +8,9 @@
  * That is, your program must work with any arbitrary selection function.
  */
 int includeElement() {
-  static int count=0;
-  return (++count) % 2;
+  // return 1; // ***A
+  static int count=0; // ***R
+  return (++count) % 2; // ***R
 }
 
 int main(int argc, char **argv) {

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "tree.h"
+#include "refcount.h" // ***A
 
 struct tree {
   struct tree_node *root;
@@ -17,7 +18,7 @@ struct tree_node {
  * Create a new, empty tree
  */
 struct tree *tree_new() {
-  struct tree *t = malloc(sizeof(*t));
+  struct tree *t = rc_malloc(sizeof(*t)); // ***A rc_malloc
   t->root = NULL;
   return t;
 }
@@ -27,7 +28,8 @@ static void tree_delete_helper(struct tree_node *n) {
     tree_delete_helper(n->left);
     tree_delete_helper(n->right);
     element_delete(n->elem);
-    free(n);
+    // free(n); // ***R
+    rc_free_ref(n); // ***A
   }
 }
 
@@ -36,7 +38,8 @@ static void tree_delete_helper(struct tree_node *n) {
  */
 void tree_delete(struct tree* t) {
   tree_delete_helper(t->root);
-  free(t);
+  // free(t); // ***R
+  rc_free_ref(t); // ***A
 }
 
 static struct tree_node *tree_insert_node_helper(struct tree_node **np, struct element *e) {
@@ -46,7 +49,8 @@ static struct tree_node *tree_insert_node_helper(struct tree_node **np, struct e
     else
       return tree_insert_node_helper(&(*np)->right, e);
   } else {
-    *np = malloc(sizeof(**np));
+    *np = rc_malloc(sizeof(**np)); // ***A rc_malloc
+    rc_keep_ref(e); // ***A
     (*np)->elem = e;
     (*np)->left = (*np)->right = NULL;
     return *np;

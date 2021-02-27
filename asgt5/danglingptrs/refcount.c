@@ -31,6 +31,6 @@ void  rc_free_ref(void* p) {
   // decrement ref count
   (*ref_count) --;
   // free allocation when ref count is 0
-  if (*ref_count == 0)
-    free (ref_count);
+  if (*ref_count == 0) // ***R
+    free (ref_count); // ***R
 }

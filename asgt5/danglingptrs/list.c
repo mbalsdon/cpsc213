@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "list.h"
+#include "refcount.h" // ***A
 
 struct list {
   struct list_node *head;
@@ -17,7 +18,7 @@ struct list_node {
  * Create new list
  */
 struct list *list_new() {
-  struct list *l = malloc(sizeof(*l));
+  struct list *l = rc_malloc(sizeof(*l)); // ***A rc_malloc
   l->head = l->tail = NULL;
   return l;
 }
@@ -30,7 +31,8 @@ void list_delete(struct list *l) {
     next = n->next;
     list_delete_element(l, n);
   }
-  free(l);
+  // free(l); // ***R
+  rc_free_ref(l); // ***A
 }
 
 /**
@@ -39,7 +41,8 @@ void list_delete(struct list *l) {
  * Returns pointer to newly added list node.
  */
 struct list_node *list_add_element(struct list *l, struct element *e) {
-  struct list_node *n = malloc(sizeof(*n));
+  struct list_node *n = rc_malloc(sizeof(*n)); // ***A rc_malloc
+  rc_keep_ref(e); // ***A
   n->elem = e;
   n->prev = n->next = NULL;
 
@@ -70,7 +73,8 @@ void list_delete_element(struct list *l, struct list_node *n) {
 
   n->next = n->prev = NULL;
   element_delete(n->elem);
-  free(n);
+  // free(n); // ***R
+  rc_free_ref(n); // ***A
 }
 
 /**
