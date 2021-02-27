@@ -8,7 +8,7 @@ ld    (r0), r0          # r0 = i
 ld    $a, r1            # r1 = addr. of a
 ld    (r1), r1          # r1 = a (= addr. of a->x)
 ld    (r1), r1          # r1 = a->x (= addr. of int)
-ld    (r1, r0, 4), r2   # r2 = a->x[i]
+ld    (r1, r0, 4), r2   # r2 = deref. of a->x[i]
 ld    $v0, r3           # r3 = addr. of v0
 st    r2, (r3)          # v0 = a->x[i]
 
@@ -31,7 +31,7 @@ ld    $a, r1            # r1 = addr. of a
 ld    (r1), r1          # r1 = a (= addr. of a->x)
 ld    20(r1), r1        # r1 = a->b.a (= addr. of struct A)
 ld    (r1), r1          # r1 = a->b.a->x (= addr. of int)
-ld    (r1, r0, 4), r2   # r2 = a->b.a->x[i]
+ld    (r1, r0, 4), r2   # r2 = deref. of a->b.a->x[i]
 ld    $v2, r3           # r3 = addr. of v2
 st    r2, (r3)          # v2 = a->b.a->x[i]
 
