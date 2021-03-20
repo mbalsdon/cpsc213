@@ -23,19 +23,16 @@ void int_print(void * thisv) {
 }
 
 int int_compare(struct element * first, struct element * second) {
-    /* If both elements are str_elements */
-    if (is_str_element(first) && is_str_element(second)) return 0;
-    /* If first element is a str_element */
-    if (is_str_element(first)) return 1;
-    /* If second element is a str_element */
-    if (is_str_element(second)) return -1;
-    /* Two int_elements case */
+    if (is_int_element(first) && is_str_element(second)) return -1;
+    if (is_str_element(first) && is_int_element(second)) return 1;
+
     struct int_element * e1 = first;
     struct int_element * e2 = second;
+
     if (e1->item < e2->item) return -1;
     if (e1->item == e2->item) return 0;
-    /* e1->item > e2->item */
     return 1;
+
 }
 
 struct int_element_class int_element_class = { int_print, int_compare };
