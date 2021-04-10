@@ -44,12 +44,13 @@ int rightfork(long i) {
   return (i + 1) % num_phils;
 }
 
-/* Given a philosopher's id, gets the right fork if it's free. If not free, waits until
-   a signal that it is. */
-void get_right_fork(long id) {
-
-    /* Get ID of right fork */
+/* Given a philosopher's id, gets the specified fork if it's free. 
+   If not free, waits until a signal that it is. */
+void get_fork(long id, int isleft) {
+    
+    /* Get ID of fork */
     long i = rightfork(id);
+    if (isleft) i = leftfork(id);
 
     uthread_mutex_lock(forks[i].lock);
 
@@ -69,27 +70,12 @@ void get_right_fork(long id) {
     uthread_mutex_unlock(forks[i].lock);
 }
 
-/* Same logic as get_right_fork. The two are separate for print statement clarity. */
-void get_left_fork(long id) {
-    long i = leftfork(id);
-    uthread_mutex_lock(forks[i].lock);
-    if (forks[i].free) {
-        VERBOSE_PRINT("- P%d getting fork %d\n", id, i);
-        forks[i].free = 0;
-    } else {
-        VERBOSE_PRINT(". P%d waiting for fork %d\n", id, i);
-        uthread_cond_wait(forks[i].forfree);
-        VERBOSE_PRINT("- P%d getting fork %d\n", id, i);
-        forks[i].free = 0;
-    }
-    uthread_mutex_unlock(forks[i].lock);
-}
+/* Given philosopher ID, puts down the specified fork and signals that it's free. */
+void put_fork(long id, int isleft) {
 
-/* Given philosopher ID, puts down the fork to their right and signals that it's free. */
-void put_right_fork(long id) {
-
-    /* Get ID of right fork */
+    /* Get ID of fork */
     long i = rightfork(id);
+    if (isleft) i = leftfork(id);
 
     uthread_mutex_lock(forks[i].lock);
 
@@ -99,16 +85,6 @@ void put_right_fork(long id) {
     forks[i].free = 1;
     uthread_cond_signal(forks[i].forfree);
 
-    uthread_mutex_unlock(forks[i].lock);
-}
-
-/* Same logic as put_right_fork. The two are separate for print statement clarity. */
-void put_left_fork(long id) {
-    long i = leftfork(id);
-    uthread_mutex_lock(forks[i].lock);
-    VERBOSE_PRINT("- P%d putting down fork %d\n", id, i);
-    forks[i].free = 1;
-    uthread_cond_signal(forks[i].forfree);
     uthread_mutex_unlock(forks[i].lock);
 }
 
@@ -144,19 +120,19 @@ void* phil_thread(void* arg) {
     while (meals < num_meals) {
         deep_thoughts();
 
-        get_right_fork(id);         // get right fork
+        get_fork(id, 0);        // get right fork
         deep_thoughts();
 
-        get_left_fork(id);          // get left fork
+        get_fork(id, 1);        // get left fork
         deep_thoughts();
 
-        eat_spaghetti(id);          // eat
+        eat_spaghetti(id);      // eat
         deep_thoughts();
 
-        put_right_fork(id);         // place right fork
+        put_fork(id, 0);        // place right fork
         deep_thoughts();
 
-        put_left_fork(id);          // place left fork
+        put_fork(id, 1);        // place left fork
         deep_thoughts();
 
         meals++;
